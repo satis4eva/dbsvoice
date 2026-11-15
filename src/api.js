@@ -5,7 +5,7 @@ import { monthStats, recordsFor, toCsv, currentMonth, billedMinutes } from "./us
 import * as numbers from "./numbers.js";
 import { googleStatus, disconnect as disconnectGoogle, oauthConfigured } from "./google-oauth.js";
 import { stripeConfigured, createCheckout, portalUrl } from "./stripe.js";
-import { publicPlans, planById, signUp, activateTenant, onboarding, freePoolCount } from "./billing.js";
+import { publicPlans, planById, signUp, activateTenant, onboarding, freePoolCount, alertAdmin } from "./billing.js";
 
 const secure = () => env.publicBaseUrl.startsWith("https://");
 const MONTH_RE = /^\d{4}-\d{2}$/;
@@ -275,7 +275,7 @@ async function route(req, url, body) {
     }
   }
 
-  m = p.match(/^\/api\/tenants\/([a-z0-9-]+)\/(checkout|portal|calendar-disconnect|forwarding|assign-number|release-number|activate)$/);
+  m = p.match(/^\/api\/tenants\/([a-z0-9-]+)\/(checkout|portal|calendar-disconnect|forwarding|claim-number|assign-number|release-number|activate)$/);
   if (m && method === "POST") {
     const t = tenantOr404(user, m[1]);
     const action = m[2];
@@ -292,6 +292,21 @@ async function route(req, url, body) {
     if (action === "calendar-disconnect") {
       await disconnectGoogle(t.id);
       return { status: 200, json: { ok: true } };
+    }
+    if (action === "claim-number") {
+      // Self-service: an active client takes one free number from the pool.
+      if (t.active === false) throw new HttpError(403, "Activate your plan first, then you can get your AI number.");
+      if ((t.phone_numbers || []).length) throw new HttpError(409, `You already have an AI number: ${t.phone_numbers[0]}. Contact DBS Group if you need another.`);
+      let n;
+      try { n = await numbers.assignFromPool(t); }
+      catch (e) { console.error("[claim-number]", e.message); throw new HttpError(502, "Couldn't connect a number just now. Please try again in a few minutes."); }
+      if (!n) {
+        await alertAdmin(`Number pool empty: ${t.name} is waiting`, { Client: t.name, Note: "Add a number on the Numbers page, then use Assign number from pool." }).catch(() => {});
+        throw new HttpError(409, "No numbers are free right now. DBS Group has been told and will add one for you shortly.");
+      }
+      const next = { ...t, phone_numbers: [n] };
+      saveTenant(next);
+      return { status: 200, json: { number: n } };
     }
     if (action === "forwarding") {
       saveTenant({ ...t, forwarding_confirmed: body.confirmed !== false });

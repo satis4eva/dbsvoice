@@ -164,5 +164,28 @@ assert.equal(readRecords("dbs-group", "calls").at(-1).summary, "Wants a quote");
 assert.ok(assistantConfig().analysisPlan.summaryPlan.enabled);
 ok("call summaries requested from Vapi and read from either place they arrive");
 
+// ---------- clients take their own number ----------
+await api("/api/tenants", { id: "cafe-one", name: "Cafe One" });
+await api("/api/tenants", { id: "cafe-two", name: "Cafe Two" });
+await api("/api/users", { email: "one@cafe.co.uk", password: "cafe-one-password", role: "client", tenant_id: "cafe-one" });
+await api("/api/users", { email: "two@cafe.co.uk", password: "cafe-two-password", role: "client", tenant_id: "cafe-two" });
+const loginAs = async (email, password) => (await fetch(`${base}/api/login`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email, password }) })).headers.get("set-cookie").split(";")[0];
+const asClient = (cookie, p) => fetch(base + p, { method: "POST", headers: { Cookie: cookie, "Content-Type": "application/json" }, body: "{}" }).then(async (x) => ({ status: x.status, json: await x.json() }));
+const one = await loginAs("one@cafe.co.uk", "cafe-one-password");
+const two = await loginAs("two@cafe.co.uk", "cafe-two-password");
+r = await asClient(one, "/api/tenants/cafe-one/claim-number");
+assert.equal(r.status, 200, JSON.stringify(r.json));
+assert.match(seen.filter((x) => x.method === "PATCH" && x.p.startsWith("/phone-number/")).at(-1).body.name, /Cafe One/);
+r = await asClient(one, "/api/tenants/cafe-one/claim-number");
+assert.equal(r.status, 409);
+assert.match(r.json.error, /already have an AI number/);
+assert.equal((await asClient(one, "/api/tenants/cafe-two/claim-number")).status, 404, "can't claim for another business");
+r = await asClient(two, "/api/tenants/cafe-two/claim-number");
+assert.equal(r.status, 409);
+assert.match(r.json.error, /No numbers are free/);
+await api("/api/tenants/cafe-two", { active: false }, "PUT");
+assert.equal((await asClient(two, "/api/tenants/cafe-two/claim-number")).status, 403);
+ok("clients can take one free number themselves; not twice, not for others, not when paused or the pool is empty");
+
 server.close(); fake.close();
 console.log(`\nAll ${passed} Vapi checks passed.`);

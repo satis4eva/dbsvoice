@@ -52,7 +52,7 @@ export function signUp({ business_name, name, email, password, plan: planId }) {
   return { tenant, user };
 }
 
-async function alertAdmin(title, fields) {
+export async function alertAdmin(title, fields) {
   if (!env.adminEmail) { console.log(`[admin] ${title}`, fields); return; }
   await notify({ id: "dbs-admin", name: "DBS Voice", notify: { email: [env.adminEmail] } }, title, fields);
 }

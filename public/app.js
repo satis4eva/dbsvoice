@@ -234,6 +234,13 @@ function setupPanel(info) {
     number ? h("div", { class: "ainum" }, h("div", { class: "muted small" }, "Your AI phone number"), h("div", { class: "num" }, number),
       h("p", { class: "small" }, "Forward your business line to this number, or set it to forward when you're busy or don't answer. Your phone provider can do this, often by dialling a short code from your phone."),
       !t.forwarding_confirmed ? h("button", { onclick: async () => { await api(`/api/tenants/${t.id}/forwarding`, { method: "POST", body: { confirmed: true } }); render(); } }, "I've set up forwarding") : null) : null,
+    !number && t.active !== false ? h("div", { class: "ainum" },
+      h("p", { class: "small" }, "Get a UK phone number for your AI receptionist. You'll then forward your business line to it."),
+      h("button", { class: "primary", onclick: async (e) => {
+        e.target.disabled = true;
+        try { const r = await api(`/api/tenants/${t.id}/claim-number`, { method: "POST", body: {} }); alert(`Your AI number is ${r.number}`); render(); }
+        catch (ex) { alert(ex.message); e.target.disabled = false; }
+      } }, "Get my AI number")) : null,
     h("ol", { class: "steps" }, ob.steps.map((st) => h("li", { class: st.done ? "done" : "" }, h("span", { class: "tick" }, st.done ? "✓" : ""), links[st.id] && !st.done ? h("a", { href: links[st.id] }, st.label) : st.label))),
     actions.length ? h("div", { class: "mt" }, actions) : null);
 }
