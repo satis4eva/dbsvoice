@@ -106,6 +106,13 @@ The sample client files use Ofcom drama numbers (+44 7700 900xxx). Replace them 
 
 The shared prompt is in `src/prompt.js` and the tools are in `src/tools.js`. After editing either, run `npm run setup-agent` again to update the agent. Choose a British voice in the Retell dashboard and copy its ID into `RETELL_VOICE_ID`.
 
+## Hosting on Hostinger (Node.js web app)
+
+- Entry file: `start.js`, Node 22. Deploys from GitHub on every push to `main`.
+- Set `DATA_DIR` and `TENANTS_DIR` to folders **outside** the app folder (e.g. `/home/<user>/dbsvoice-data/data` and `.../tenants`) so redeploys never wipe logins or client settings. On first start the sample client files are copied there.
+- First admin login without a terminal: set `ADMIN_BOOTSTRAP_EMAIL` and `ADMIN_BOOTSTRAP_HASH` (from `node -e "import('./src/auth.js').then(a=>console.log(a.hashPassword('your-password')))"`). It's only used while no users exist.
+- Hostinger replaces the whole set of environment variables when you save, so always include every variable.
+
 ## Running
 
 ```bash

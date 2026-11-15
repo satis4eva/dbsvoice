@@ -60,6 +60,18 @@ export function createUser({ email, password, name, role, tenant_id }) {
   return publicUser(user);
 }
 
+/**
+ * First-run admin from env, for hosts without a terminal.
+ * ADMIN_BOOTSTRAP_EMAIL + ADMIN_BOOTSTRAP_HASH (a scrypt hash from hashPassword). Only used while no users exist.
+ */
+export function bootstrapAdmin() {
+  const email = String(process.env.ADMIN_BOOTSTRAP_EMAIL || "").trim().toLowerCase();
+  const hash = process.env.ADMIN_BOOTSTRAP_HASH || "";
+  if (!email || !hash.startsWith("scrypt$") || loadUsers().length) return null;
+  saveUsers([{ id: crypto.randomUUID(), email, name: "DBS Admin", role: "admin", tenant_id: null, password: hash, created_at: new Date().toISOString() }]);
+  return email;
+}
+
 export function deleteUser(id) {
   const users = loadUsers();
   const next = users.filter((u) => u.id !== id);

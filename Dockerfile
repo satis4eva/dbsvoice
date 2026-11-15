@@ -12,4 +12,5 @@ RUN mkdir -p /app/data && chown -R node:node /app/data /app/tenants
 VOLUME ["/app/data", "/app/tenants"]
 EXPOSE 8080
 USER node
-CMD ["node", "src/server.js"]
+COPY start.js ./
+CMD ["node", "start.js"]
