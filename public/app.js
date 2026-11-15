@@ -84,7 +84,8 @@ function loginView() {
 
 async function signupView() {
   const { plans, payments } = await api("/api/plans");
-  let chosen = (plans.find((p) => p.popular) || plans[0])?.id;
+  const wanted = hashQuery().get("plan");
+  let chosen = (plans.find((p) => p.id === wanted) || plans.find((p) => p.popular) || plans[0])?.id;
   const err = h("div");
   const cards = h("div", { class: "plans" });
   const drawPlans = () => cards.replaceChildren(...plans.map((p) => h("button", { type: "button", class: `plan${p.id === chosen ? " on" : ""}`, onclick: () => { chosen = p.id; drawPlans(); } },

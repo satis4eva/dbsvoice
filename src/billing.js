@@ -78,7 +78,7 @@ export async function activateTenant(tenantId, billingPatch = {}) {
     await notify(next, "Your AI receptionist is live", {
       "Your AI number": next.phone_numbers[0],
       "Next step": "Forward your business line to this number (or give it out directly). Then fill in your business details in the dashboard so the assistant can answer questions.",
-      Dashboard: env.publicBaseUrl,
+      Dashboard: `${env.publicBaseUrl}/app`,
     });
   }
   return { tenant: next, numberNote };

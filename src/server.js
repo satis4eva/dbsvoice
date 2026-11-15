@@ -20,7 +20,10 @@ const MAX_BODY = 1_000_000;
 
 // ---- static dashboard files (fixed allowlist, no path traversal) ----
 const publicDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "public");
-const STATIC = { "/": ["index.html", "text/html"], "/app.js": ["app.js", "text/javascript"], "/style.css": ["style.css", "text/css"] };
+const STATIC = {
+  "/": ["landing.html", "text/html"], "/landing.css": ["landing.css", "text/css"], "/landing.js": ["landing.js", "text/javascript"],
+  "/app": ["index.html", "text/html"], "/app/": ["index.html", "text/html"], "/app.js": ["app.js", "text/javascript"], "/style.css": ["style.css", "text/css"],
+};
 const SECURITY_HEADERS = {
   "Content-Security-Policy": "default-src 'self'; img-src 'self' data:; media-src https:; style-src 'self'; script-src 'self'; frame-ancestors 'none'",
   "X-Content-Type-Options": "nosniff",
@@ -123,16 +126,16 @@ export function createServer() {
       if (req.method === "GET" && url.pathname === "/oauth/google/start") {
         const user = userFromRequest(req);
         const tid = url.searchParams.get("tenant") || "";
-        if (!user || !tenantById(tid) || (user.role !== "admin" && user.tenant_id !== tid)) return redirect(res, "/#/settings?calendar=denied");
-        if (!oauthConfigured()) return redirect(res, "/#/settings?calendar=unavailable");
+        if (!user || !tenantById(tid) || (user.role !== "admin" && user.tenant_id !== tid)) return redirect(res, "/app#/settings?calendar=denied");
+        if (!oauthConfigured()) return redirect(res, "/app#/settings?calendar=unavailable");
         return redirect(res, authUrl(makeState(tid, user.id), user.email));
       }
       if (req.method === "GET" && url.pathname === "/oauth/google/callback") {
         const st = readState(url.searchParams.get("state"));
-        if (!st || !tenantById(st.t)) return redirect(res, "/#/settings?calendar=expired");
-        if (url.searchParams.get("error") || !url.searchParams.get("code")) return redirect(res, "/#/settings?calendar=cancelled");
-        try { await exchangeCode(st.t, url.searchParams.get("code")); return redirect(res, "/#/settings?calendar=connected"); }
-        catch (e) { console.error("[google oauth]", e.message); return redirect(res, "/#/settings?calendar=error"); }
+        if (!st || !tenantById(st.t)) return redirect(res, "/app#/settings?calendar=expired");
+        if (url.searchParams.get("error") || !url.searchParams.get("code")) return redirect(res, "/app#/settings?calendar=cancelled");
+        try { await exchangeCode(st.t, url.searchParams.get("code")); return redirect(res, "/app#/settings?calendar=connected"); }
+        catch (e) { console.error("[google oauth]", e.message); return redirect(res, "/app#/settings?calendar=error"); }
       }
 
       // ---- Stripe webhook ----

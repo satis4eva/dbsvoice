@@ -45,14 +45,14 @@ export async function createCheckout({ tenant, plan, email }) {
     billing_address_collection: "required",
     tax_id_collection: { enabled: "true" },
     allow_promotion_codes: "true",
-    success_url: `${base}/#/overview?paid=1`,
-    cancel_url: `${base}/#/overview?paid=0`,
+    success_url: `${base}/app#/overview?paid=1`,
+    cancel_url: `${base}/app#/overview?paid=0`,
   });
   return session.url;
 }
 
 export async function portalUrl(customerId) {
-  const s = await stripe("POST", "/billing_portal/sessions", { customer: customerId, return_url: `${env.publicBaseUrl}/#/overview` });
+  const s = await stripe("POST", "/billing_portal/sessions", { customer: customerId, return_url: `${env.publicBaseUrl}/app#/overview` });
   return s.url;
 }
 

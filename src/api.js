@@ -146,7 +146,7 @@ async function route(req, url, body) {
     return { status: 200, json: { user: auth.publicUser(u) }, headers: { "Set-Cookie": auth.sessionCookie(u, secure()) } };
   }
   if (method === "GET" && p === "/api/plans") {
-    return { status: 200, json: { plans: publicPlans(), payments: stripeConfigured() } };
+    return { status: 200, json: { plans: publicPlans(), payments: stripeConfigured(), demo_number: process.env.DEMO_PHONE_NUMBER || null } };
   }
 
   if (method === "POST" && p === "/api/signup") {

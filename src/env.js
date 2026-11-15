@@ -42,6 +42,7 @@ export const env = {
 
   // Where DBS gets alerts about new sign-ups and failed payments
   adminEmail: process.env.ADMIN_EMAIL || "",
+  demoNumber: process.env.DEMO_PHONE_NUMBER || "",
 
   // API base URLs (overridable for tests)
   retellApiBase: process.env.RETELL_API_BASE || "https://api.retellai.com",

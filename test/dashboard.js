@@ -48,7 +48,12 @@ let r = await fetch(`${base}/`);
 assert.equal(r.status, 200);
 assert.match(r.headers.get("content-security-policy"), /script-src 'self'/);
 assert.equal((await fetch(`${base}/../package.json`)).status, 404);
-ok("dashboard page served with security headers; no path traversal");
+r = await fetch(`${base}/app`);
+assert.equal(r.status, 200);
+assert.match(await r.text(), /app\.js/);
+r = await fetch(`${base}/`);
+assert.match(await r.text(), /Every call answered/);
+ok("landing page at /, dashboard at /app, security headers; no path traversal");
 
 // login
 assert.equal((await login("admin@dbsgroup.io", "wrong-password-xx")).status, 401);
