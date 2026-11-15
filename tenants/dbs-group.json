@@ -1,0 +1,98 @@
+{
+  "id": "dbs-group",
+  "name": "DBS Group",
+  "assistant_name": "Ava",
+  "phone_numbers": [
+    "+447700900000"
+  ],
+  "timezone": "Europe/London",
+  "greeting": "Hello, thanks for calling DBS Group. I'm Ava, the virtual assistant. How can I help today?",
+  "business_info": "DBS Group (dbsgroup.io) is a UK-based technology company. We help businesses with telecom services, payment solutions, technology services, app development and digital marketing.",
+  "services": [
+    "Telecom services for businesses",
+    "Payment solutions, including card payments and merchant services",
+    "Technology services and IT support",
+    "Mobile and web app development",
+    "Digital marketing, including SEO, social media and Google Ads",
+    "AI phone assistants for businesses"
+  ],
+  "hours": {
+    "mon": [
+      "09:00",
+      "17:30"
+    ],
+    "tue": [
+      "09:00",
+      "17:30"
+    ],
+    "wed": [
+      "09:00",
+      "17:30"
+    ],
+    "thu": [
+      "09:00",
+      "17:30"
+    ],
+    "fri": [
+      "09:00",
+      "17:30"
+    ]
+  },
+  "faqs": [
+    {
+      "q": "Where are you based?",
+      "a": "We're a UK-based company and work with clients across the UK, Europe and Asia-Pacific."
+    },
+    {
+      "q": "How much does an app or website cost?",
+      "a": "It depends on the project. The team will give a quote after a short discovery call, which the assistant can book."
+    }
+  ],
+  "qualification": {
+    "questions": [
+      "Which service are you interested in?",
+      "What's the name of your business and roughly how big is it?",
+      "What problem are you trying to solve?",
+      "Do you have a budget in mind?",
+      "When would you like to get started?"
+    ],
+    "hot_lead_criteria": "An established business with a clear need, a budget, and wants to start within the next 3 months."
+  },
+  "transfer_number": "+447700900500",
+  "transfer_rules": "Transfer hot leads and existing clients with urgent issues, but only during opening hours. Outside opening hours, take a message or book a call.",
+  "calendar": {
+    "id": "REPLACE_WITH_GOOGLE_CALENDAR_ID",
+    "appointment_label": "discovery call",
+    "slot_minutes": 30,
+    "buffer_minutes": 15,
+    "min_notice_minutes": 120,
+    "booking_hours": {
+      "mon": [
+        "10:00",
+        "16:30"
+      ],
+      "tue": [
+        "10:00",
+        "16:30"
+      ],
+      "wed": [
+        "10:00",
+        "16:30"
+      ],
+      "thu": [
+        "10:00",
+        "16:30"
+      ],
+      "fri": [
+        "10:00",
+        "15:00"
+      ]
+    }
+  },
+  "notify": {
+    "email": [],
+    "webhook": "",
+    "call_summaries": true
+  },
+  "blocked_numbers": []
+}

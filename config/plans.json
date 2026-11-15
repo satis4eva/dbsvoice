@@ -1,0 +1,36 @@
+[
+  {
+    "id": "starter",
+    "name": "Starter",
+    "monthly_fee": 49,
+    "included_minutes": 150,
+    "overage_per_minute": 0.25,
+    "currency": "GBP",
+    "features": ["AI receptionist 24/7", "Messages by email", "Lead qualification", "150 minutes included"],
+    "stripe_price_base": "price_REPLACE_STARTER_MONTHLY",
+    "stripe_price_minutes": "price_REPLACE_STARTER_MINUTES"
+  },
+  {
+    "id": "pro",
+    "name": "Pro",
+    "monthly_fee": 99,
+    "included_minutes": 400,
+    "overage_per_minute": 0.2,
+    "currency": "GBP",
+    "features": ["Everything in Starter", "Google Calendar booking", "Live call transfer", "400 minutes included"],
+    "stripe_price_base": "price_REPLACE_PRO_MONTHLY",
+    "stripe_price_minutes": "price_REPLACE_PRO_MINUTES",
+    "popular": true
+  },
+  {
+    "id": "business",
+    "name": "Business",
+    "monthly_fee": 199,
+    "included_minutes": 1000,
+    "overage_per_minute": 0.15,
+    "currency": "GBP",
+    "features": ["Everything in Pro", "Multiple numbers", "Priority support", "1,000 minutes included"],
+    "stripe_price_base": "price_REPLACE_BUSINESS_MONTHLY",
+    "stripe_price_minutes": "price_REPLACE_BUSINESS_MINUTES"
+  }
+]

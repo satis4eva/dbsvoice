@@ -1,0 +1,73 @@
+{
+  "id": "example-restaurant",
+  "name": "Spice Kitchen",
+  "assistant_name": "Maya",
+  "phone_numbers": [
+    "+447700900999"
+  ],
+  "timezone": "Europe/London",
+  "greeting": "Hello, thank you for calling Spice Kitchen. This is Maya, the virtual assistant. How can I help?",
+  "business_info": "Spice Kitchen is an Indian restaurant offering dine-in, takeaway and delivery. Table bookings can be made by phone.",
+  "services": [
+    "Dine-in",
+    "Takeaway",
+    "Delivery through our website",
+    "Private parties for up to 30 guests"
+  ],
+  "hours": {
+    "tue": [
+      "17:00",
+      "22:30"
+    ],
+    "wed": [
+      "17:00",
+      "22:30"
+    ],
+    "thu": [
+      "17:00",
+      "22:30"
+    ],
+    "fri": [
+      "17:00",
+      "23:00"
+    ],
+    "sat": [
+      "12:00",
+      "23:00"
+    ],
+    "sun": [
+      "12:00",
+      "21:30"
+    ]
+  },
+  "faqs": [
+    {
+      "q": "Do you have vegan options?",
+      "a": "Yes, there are several vegan dishes. Staff can advise on allergens when you visit or order."
+    },
+    {
+      "q": "Is there parking?",
+      "a": "There is street parking nearby."
+    }
+  ],
+  "qualification": {
+    "questions": [
+      "How many guests is the party for?",
+      "What date are you thinking of?",
+      "Do you need any special menu or decorations?"
+    ],
+    "hot_lead_criteria": "A private party of 15 or more guests in the next 2 months."
+  },
+  "transfer_number": "",
+  "transfer_rules": "",
+  "calendar": {
+    "id": "",
+    "appointment_label": "table booking",
+    "slot_minutes": 90
+  },
+  "notify": {
+    "email": [],
+    "webhook": "",
+    "call_summaries": false
+  }
+}
