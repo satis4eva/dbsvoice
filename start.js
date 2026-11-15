@@ -1,8 +1,12 @@
 // Production entry point (used by Hostinger and `npm start`). Always starts listening.
+// No top-level await: Hostinger's LiteSpeed runner loads this file with require().
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import "./src/env.js";
+import { env } from "./src/env.js";
+import { createServer } from "./src/server.js";
+import { loadTenants } from "./src/tenants.js";
+import { bootstrapAdmin } from "./src/auth.js";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 
@@ -20,11 +24,6 @@ if (!fs.existsSync(tenantsDir) || !fs.readdirSync(tenantsDir).some((f) => f.ends
   }
   console.log(`Seeded client settings into ${tenantsDir}`);
 }
-
-const { createServer } = await import("./src/server.js");
-const { loadTenants } = await import("./src/tenants.js");
-const { bootstrapAdmin } = await import("./src/auth.js");
-const { env } = await import("./src/env.js");
 
 const created = bootstrapAdmin();
 if (created) console.log(`Created first admin login ${created}`);
