@@ -157,5 +157,12 @@ r = await api("/api/tenants/dbs-group/stats", null, "GET");
 assert.equal(r.json.stats.billed_minutes, 3);
 ok("end-of-call report logged with summary and recording; minutes count towards the bill");
 
+// summary can also arrive on the call object
+await hook({ type: "end-of-call-report", call: { ...call, id: "call_v2", analysis: { summary: "Wants a quote" } }, phoneNumber: { number: dbsNumber }, customer: { number: "+447700900123" }, durationSeconds: 30, artifact: {} });
+await new Promise((res) => setTimeout(res, 50));
+assert.equal(readRecords("dbs-group", "calls").at(-1).summary, "Wants a quote");
+assert.ok(assistantConfig().analysisPlan.summaryPlan.enabled);
+ok("call summaries requested from Vapi and read from either place they arrive");
+
 server.close(); fake.close();
 console.log(`\nAll ${passed} Vapi checks passed.`);

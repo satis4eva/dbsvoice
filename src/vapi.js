@@ -129,8 +129,8 @@ export async function handleVapiMessage(body) {
             from_number: callerNumber(m),
             to_number: dialledNumber(m),
             duration_sec: durationSec,
-            summary: m.analysis?.summary || m.summary,
-            successful: m.analysis?.successEvaluation,
+            summary: m.analysis?.summary || m.call?.analysis?.summary || m.summary || m.artifact?.summary,
+            successful: m.analysis?.successEvaluation ?? m.call?.analysis?.successEvaluation,
             recording_url: a.recordingUrl || a.recording?.mono?.combinedUrl || m.recordingUrl,
             transcript: a.transcript || m.transcript,
             disconnection: m.endedReason,
@@ -208,6 +208,13 @@ export function assistantConfig({ includeVoice = true } = {}) {
     transcriber: { provider: "deepgram", model: "nova-3", language: "en" },
     server: { url: webhookUrl(), timeoutSeconds: 20 },
     serverMessages: ["tool-calls", "transfer-destination-request", "end-of-call-report"],
+    // Ask Vapi for a short call summary in the end-of-call report
+    analysisPlan: {
+      summaryPlan: {
+        enabled: true,
+        messages: [{ role: "system", content: "Summarise this phone call for the business owner in 2-3 plain sentences: who called, what they wanted, and what was agreed or needs doing next. British English." }],
+      },
+    },
     endCallMessage: "Thanks for calling. Goodbye.",
     silenceTimeoutSeconds: 30,
     maxDurationSeconds: 1200,
