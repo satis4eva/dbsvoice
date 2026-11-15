@@ -11,6 +11,7 @@ fs.cpSync(path.join(root, "tenants"), path.join(tmp, "tenants"), { recursive: tr
 process.env.TENANTS_DIR = path.join(tmp, "tenants");
 process.env.DATA_DIR = path.join(tmp, "data");
 process.env.RETELL_API_KEY = "test_key";
+process.env.VOICE_PROVIDER = "retell";
 process.env.PUBLIC_BASE_URL = "http://localhost";
 
 const { createServer } = await import("../src/server.js");

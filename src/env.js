@@ -26,6 +26,21 @@ export const env = {
   googleEmail: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL || "",
   googleKey: (process.env.GOOGLE_PRIVATE_KEY || "").replace(/\\n/g, "\n"),
 
+  // Voice engine: "vapi" (default) or "retell"
+  voiceProvider: (process.env.VOICE_PROVIDER || "vapi").toLowerCase(),
+  vapiApiKey: process.env.VAPI_API_KEY || "",
+  vapiAssistantId: process.env.VAPI_ASSISTANT_ID || "",
+  vapiWebhookSecret: process.env.VAPI_WEBHOOK_SECRET || "",
+  vapiModelProvider: process.env.VAPI_MODEL_PROVIDER || "openai",
+  vapiModel: process.env.VAPI_MODEL || "gpt-4.1",
+  vapiVoiceProvider: process.env.VAPI_VOICE_PROVIDER || "vapi",
+  vapiVoiceId: process.env.VAPI_VOICE_ID || "Elliot",
+  vapiApiBase: process.env.VAPI_API_BASE || "https://api.vapi.ai",
+  twilioAccountSid: process.env.TWILIO_ACCOUNT_SID || "",
+  twilioApiKey: process.env.TWILIO_API_KEY || "",
+  twilioApiSecret: process.env.TWILIO_API_SECRET || "",
+  twilioAuthToken: process.env.TWILIO_AUTH_TOKEN || "",
+
   // Phone numbers: SIP trunk used when importing UK numbers into Retell
   sipTerminationUri: process.env.RETELL_SIP_TERMINATION_URI || "",
   sipUsername: process.env.RETELL_SIP_USERNAME || "",

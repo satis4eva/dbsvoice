@@ -5,6 +5,7 @@ import path from "node:path";
 import fs from "node:fs";
 
 process.env.RETELL_API_KEY = "test_key";
+process.env.VOICE_PROVIDER = "retell";
 process.env.RETELL_AGENT_ID = "agent_test";
 process.env.SKIP_SIGNATURE_CHECK = "false";
 process.env.RESEND_API_KEY = "";
@@ -96,7 +97,7 @@ ok("message saved, caller number used as callback");
 
 r = await post("/tools/qualify_lead", { name: "qualify_lead", call, args: { caller_name: "Raj", company: "Acme Ltd", need: "New app", score: "hot" } });
 assert.equal(r.json.score, "hot");
-assert.match(r.json.instruction, /transfer_to_team/);
+assert.match(r.json.instruction, /transfer tool/);
 ok("hot lead saved and transfer offered");
 
 r = await post("/tools/check_availability", { name: "check_availability", call, args: {} });

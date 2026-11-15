@@ -10,7 +10,7 @@
   "scripts": {
     "start": "node start.js",
     "setup-agent": "node scripts/create-agent.js",
-    "test": "node test/smoke.js && node test/dashboard.js && node test/integrations.js",
+    "test": "node test/smoke.js && node test/dashboard.js && node test/integrations.js && node test/vapi.js",
     "add-user": "node scripts/add-user.js"
   },
   "license": "UNLICENSED",

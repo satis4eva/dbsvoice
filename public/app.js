@@ -437,10 +437,10 @@ async function numbersView() {
   const data = await api("/api/numbers");
   const err = h("div");
   const num = h("input", { placeholder: "+442071234567" });
-  const imp = h("input", { type: "checkbox", checked: data.sip_import, disabled: !data.sip_import });
+  const imp = h("input", { type: "checkbox", checked: data.can_import, disabled: !data.can_import });
   return h("div", {},
     top("Numbers"),
-    !data.retell_ready ? msg("Retell isn't fully set up: check RETELL_API_KEY, RETELL_AGENT_ID and PUBLIC_BASE_URL.") : null,
+    !data.ready ? msg(`${data.engine} isn't fully set up yet, so new numbers can't answer calls. Finish the voice setup first.`) : null,
     h("div", { class: "stats" },
       h("div", { class: "stat" }, h("div", { class: "k" }, "In pool"), h("div", { class: "v" }, data.numbers.length)),
       h("div", { class: "stat" }, h("div", { class: "k" }, "Free"), h("div", { class: "v" }, data.free))),
@@ -456,9 +456,9 @@ async function numbersView() {
           try { await api(`/api/numbers/${encodeURIComponent(n.number)}`, { method: "DELETE", body: {} }); render(); } catch (e) { err.replaceChildren(msg(e.message)); }
         } }, "Remove")))))) : h("div", { class: "empty" }, "No numbers yet.")),
     h("div", { class: "panel" }, h("h2", {}, "Add a number"), err,
-      h("p", { class: "small muted" }, data.sip_import ? "Tick import to bring a number in from your SIP trunk. Untick it if you already added the number in Retell." : "Add the number in Retell first (buy or import it), then add it here. To import automatically, set RETELL_SIP_TERMINATION_URI."),
+      h("p", { class: "small muted" }, data.can_import ? `Tick import to bring a number in from ${data.import_from}. Untick it if the number is already in ${data.engine}.` : `Add the number in ${data.engine} first, then add it here. To import automatically, ${data.import_from} details need adding on the server.`),
       h("label", {}, "Phone number"), num,
-      h("label", { class: "check mt" }, imp, "Import into Retell from our SIP trunk"),
+      h("label", { class: "check mt" }, imp, `Import into ${data.engine} from ${data.import_from}`),
       h("div", { class: "mt" }, h("button", { class: "primary", onclick: async (e) => {
         err.replaceChildren(); e.target.disabled = true;
         try { await api("/api/numbers", { method: "POST", body: { number: num.value, import: imp.checked } }); render(); }

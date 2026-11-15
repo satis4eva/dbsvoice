@@ -7,6 +7,7 @@ import { env } from "./src/env.js";
 import { createServer } from "./src/server.js";
 import { loadTenants } from "./src/tenants.js";
 import { bootstrapAdmin } from "./src/auth.js";
+import { syncAssistantOnStart } from "./src/vapi.js";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 
@@ -31,5 +32,10 @@ if (created) console.log(`Created first admin login ${created}`);
 const tenants = loadTenants();
 createServer().listen(env.port, () => {
   console.log(`DBS Voice listening on :${env.port} with ${Object.keys(tenants).length} client(s)`);
-  if (!env.retellApiKey) console.warn("RETELL_API_KEY is not set yet: dashboard works, calls won't.");
+  if (env.voiceProvider === "vapi") {
+    if (!env.vapiApiKey) console.warn("VAPI_API_KEY is not set yet: dashboard works, calls won't.");
+    syncAssistantOnStart()
+      .then((r) => console.log(`Vapi assistant: ${r.ok || r.skipped}${r.id ? ` (${r.id})` : ""}`))
+      .catch((e) => console.error(`Vapi assistant sync failed: ${e.message}`));
+  } else if (!env.retellApiKey) console.warn("RETELL_API_KEY is not set yet: dashboard works, calls won't.");
 });

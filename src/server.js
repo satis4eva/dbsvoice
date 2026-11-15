@@ -8,6 +8,7 @@ import { tenantById } from "./tenants.js";
 import { oauthConfigured, makeState, readState, authUrl, exchangeCode } from "./google-oauth.js";
 import { verifyStripeSignature, reportMinutes } from "./stripe.js";
 import { handleStripeEvent } from "./billing.js";
+import { vapiAuthorised, handleVapiMessage } from "./vapi.js";
 import { billedMinutes } from "./usage.js";
 import { env } from "./env.js";
 import { verifyRetellSignature } from "./retell.js";
@@ -91,28 +92,39 @@ function handleInbound(body) {
 }
 
 // ---- Call events: send a summary once Retell has analysed the call ----
+/** Log a finished call, report minutes to Stripe, and email the summary. Same for every voice engine. */
+async function recordFinishedCall(tenant, c) {
+  const durationSec = c.duration_sec;
+  record(tenant.id, "calls", {
+    call_id: c.call_id, from: c.from_number, duration_sec: durationSec, summary: c.summary,
+    sentiment: c.sentiment, successful: c.successful, recording_url: c.recording_url, disconnection: c.disconnection,
+  });
+  if (tenant.billing?.stripe_customer_id && durationSec > 0) {
+    reportMinutes(tenant.billing.stripe_customer_id, billedMinutes(durationSec), c.call_id).catch((e) => console.error("[stripe meter]", e.message));
+  }
+  if (tenant.notify?.call_summaries === false) return;
+  await notify(tenant, `Call summary: ${c.from_number || "unknown caller"}`, {
+    From: c.from_number,
+    Duration: durationSec !== undefined ? `${Math.floor(durationSec / 60)}m ${durationSec % 60}s` : undefined,
+    Summary: c.summary,
+    Sentiment: c.sentiment,
+    Recording: c.recording_url,
+    Transcript: c.transcript ? String(c.transcript).slice(0, 6000) : undefined,
+  });
+}
+
+// Retell: call_analyzed event
 async function handleCallEvent(body) {
   const { event, call } = body;
   if (event !== "call_analyzed" || !call) return;
   const tenant = tenantForCall(call);
   if (!tenant) return;
   const a = call.call_analysis || {};
-  const durationSec = call.end_timestamp != null && call.start_timestamp != null ? Math.round((call.end_timestamp - call.start_timestamp) / 1000) : undefined;
-  record(tenant.id, "calls", {
-    call_id: call.call_id, from: call.from_number, duration_sec: durationSec, summary: a.call_summary,
-    sentiment: a.user_sentiment, successful: a.call_successful, recording_url: call.recording_url, disconnection: call.disconnection_reason,
-  });
-  if (tenant.billing?.stripe_customer_id && durationSec > 0) {
-    reportMinutes(tenant.billing.stripe_customer_id, billedMinutes(durationSec), call.call_id).catch((e) => console.error("[stripe meter]", e.message));
-  }
-  if (tenant.notify?.call_summaries === false) return;
-  await notify(tenant, `Call summary: ${call.from_number || "unknown caller"}`, {
-    From: call.from_number,
-    Duration: durationSec !== undefined ? `${Math.floor(durationSec / 60)}m ${durationSec % 60}s` : undefined,
-    Summary: a.call_summary,
-    Sentiment: a.user_sentiment,
-    Recording: call.recording_url,
-    Transcript: call.transcript ? String(call.transcript).slice(0, 6000) : undefined,
+  await recordFinishedCall(tenant, {
+    call_id: call.call_id, from_number: call.from_number,
+    duration_sec: call.end_timestamp != null && call.start_timestamp != null ? Math.round((call.end_timestamp - call.start_timestamp) / 1000) : undefined,
+    summary: a.call_summary, sentiment: a.user_sentiment, successful: a.call_successful,
+    recording_url: call.recording_url, transcript: call.transcript, disconnection: call.disconnection_reason,
   });
 }
 
@@ -136,6 +148,21 @@ export function createServer() {
         if (url.searchParams.get("error") || !url.searchParams.get("code")) return redirect(res, "/app#/settings?calendar=cancelled");
         try { await exchangeCode(st.t, url.searchParams.get("code")); return redirect(res, "/app#/settings?calendar=connected"); }
         catch (e) { console.error("[google oauth]", e.message); return redirect(res, "/app#/settings?calendar=error"); }
+      }
+
+      // ---- Vapi (voice engine) ----
+      if (req.method === "POST" && url.pathname === "/vapi/webhook") {
+        const raw = await readBody(req);
+        if (!vapiAuthorised(req, url)) return send(res, 401, { error: "unauthorised" });
+        let body;
+        try { body = JSON.parse(raw || "{}"); } catch { return send(res, 400, { error: "Invalid JSON" }); }
+        const out = await handleVapiMessage(body);
+        if (out.callEvent) {
+          send(res, 200, { ok: true }); // acknowledge, then process
+          recordFinishedCall(out.callEvent.tenant, out.callEvent.call).catch((e) => console.error("[vapi end-of-call]", e));
+          return;
+        }
+        return send(res, 200, out);
       }
 
       // ---- Stripe webhook ----

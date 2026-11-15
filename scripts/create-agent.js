@@ -4,6 +4,17 @@ import fs from "node:fs";
 import { env } from "../src/env.js";
 import { GENERAL_PROMPT, BEGIN_MESSAGE, DEFAULT_DYNAMIC_VARIABLES } from "../src/prompt.js";
 import { toolDefinitions } from "../src/tools.js";
+import { upsertAssistant, webhookUrl } from "../src/vapi.js";
+
+if (env.voiceProvider === "vapi") {
+  if (!env.vapiApiKey) throw new Error("Set VAPI_API_KEY in .env");
+  if (!env.publicBaseUrl.startsWith("https://")) throw new Error("Set PUBLIC_BASE_URL in .env to your public https URL");
+  const r = await upsertAssistant();
+  console.log(`${r.created ? "Created" : "Updated"} Vapi assistant ${r.id}.`);
+  console.log(`Phone numbers should have no assistant and this Server URL:\n  ${webhookUrl().replace(/token=[^&]+/, "token=…")}`);
+  console.log("The Numbers page in the dashboard sets this up for you.");
+  process.exit(0);
+}
 
 const API = "https://api.retellai.com";
 

@@ -327,7 +327,7 @@ async function route(req, url, body) {
       const names = Object.fromEntries(Object.values(getTenants()).map((t) => [t.id, t.name]));
       return { status: 200, json: {
         numbers: numbers.loadPool().map((n) => ({ ...n, tenant_name: n.tenant_id ? names[n.tenant_id] || n.tenant_id : null })),
-        free: freePoolCount(), sip_import: Boolean(env.sipTerminationUri), retell_ready: Boolean(env.retellApiKey && env.agentId && env.publicBaseUrl),
+        free: freePoolCount(), ...numbers.engineStatus(),
       } };
     }
     if (method === "POST") {

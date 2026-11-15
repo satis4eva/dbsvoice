@@ -1,5 +1,21 @@
 # DBS Voice Receptionist
 
+> **Voice engine:** runs on **Vapi** by default (`VOICE_PROVIDER=vapi`), with UK numbers from Twilio. Retell is still supported with `VOICE_PROVIDER=retell`; the Retell-specific steps further down only apply then.
+
+## Quick setup with Vapi + Twilio
+
+1. **Twilio:** buy UK numbers (needs a UK address bundle). Create an **API key** (Account → API keys & tokens → Create API key, type Standard) and note the SID (`SK…`) and secret.
+2. **Vapi:** sign up and copy your **private API key** (Dashboard → API Keys).
+3. **Server settings:** set `VAPI_API_KEY`, `TWILIO_ACCOUNT_SID`, `TWILIO_API_KEY`, `TWILIO_API_SECRET` alongside the existing ones.
+4. On start the server **creates the Vapi assistant itself** and keeps it in sync with `src/prompt.js`. Choose a British voice for it in the Vapi dashboard (Assistants → DBS Voice Receptionist → Voice); later updates keep your choice.
+5. **Numbers page → Add a number** with *Import* ticked: the Twilio number is added to Vapi and routed to this server. Assign it to a client and calls to it are answered as that client.
+6. Clients divert their existing line to their AI number (see the divert codes in the dashboard help or below).
+
+How a call flows: Vapi asks this server which client the dialled number belongs to (`assistant-request`), we reply with the shared assistant plus that client's details; tool calls, transfers (`transfer-destination-request`) and the end-of-call report all come back to `/vapi/webhook`, protected by a secret token the server generates.
+
+**Diverting an existing line:** BT/most landlines `*21*<AI number>#` (all calls), `*61*…#` (no answer), `*67*…#` (busy). Mobiles `**21*…#`, `**61*…#`, `**67*…#`, `**62*…#` (off); cancel all `##002#`. VoIP lines: the provider's portal.
+
+
 An AI phone receptionist built on Retell AI. One agent serves every client: the number a caller dials decides which business the agent speaks for.
 
 It can:

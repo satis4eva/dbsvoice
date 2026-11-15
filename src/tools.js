@@ -33,7 +33,7 @@ export const handlers = {
     const canTransfer = Boolean(tenant.transfer_number);
     const instruction =
       score === "hot" && canTransfer
-        ? "This is a hot lead. Offer to connect them to the team right now. If they agree, use transfer_to_team. Otherwise offer to book a call."
+        ? "This is a hot lead. Offer to connect them to the team right now. If they agree, use the transfer tool. Otherwise offer to book a call."
         : bookingEnabled(tenant)
           ? "Thank them. Offer to book a follow-up call using check_availability."
           : "Thank them and say the team will be in touch shortly.";

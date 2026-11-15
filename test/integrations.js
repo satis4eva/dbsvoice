@@ -57,7 +57,7 @@ const F = `http://localhost:${fake.address().port}`;
 
 Object.assign(process.env, {
   TENANTS_DIR: path.join(tmp, "tenants"), DATA_DIR: path.join(tmp, "data"),
-  RETELL_API_KEY: "test_key", RETELL_AGENT_ID: "agent_main", PUBLIC_BASE_URL: "https://voice.dbsgroup.io",
+  VOICE_PROVIDER: "retell", RETELL_API_KEY: "test_key", RETELL_AGENT_ID: "agent_main", PUBLIC_BASE_URL: "https://voice.dbsgroup.io",
   RETELL_API_BASE: `${F}/retell`, RETELL_SIP_TERMINATION_URI: "sip.dbsgroup.io",
   STRIPE_SECRET_KEY: "sk_test_x", STRIPE_WEBHOOK_SECRET: "whsec_test", STRIPE_API_BASE: `${F}/stripe`,
   GOOGLE_OAUTH_CLIENT_ID: "gid", GOOGLE_OAUTH_CLIENT_SECRET: "gsecret", GOOGLE_AUTH_URL: `${F}/google/auth`,

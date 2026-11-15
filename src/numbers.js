@@ -2,6 +2,15 @@
 import fs from "node:fs";
 import path from "node:path";
 import { env } from "./env.js";
+import { bindVapiNumber, importVapiNumber, assistantId as vapiAssistantId } from "./vapi.js";
+
+const useVapi = () => env.voiceProvider === "vapi";
+
+/** Can numbers be imported automatically, and is the voice engine ready? Shown on the Numbers page. */
+export function engineStatus() {
+  if (useVapi()) return { engine: "Vapi", can_import: Boolean(env.twilioAccountSid && ((env.twilioApiKey && env.twilioApiSecret) || env.twilioAuthToken)), ready: Boolean(env.vapiApiKey && vapiAssistantId() && env.publicBaseUrl), import_from: "Twilio" };
+  return { engine: "Retell", can_import: Boolean(env.sipTerminationUri), ready: Boolean(env.retellApiKey && env.agentId && env.publicBaseUrl), import_from: "your SIP trunk" };
+}
 
 const poolFile = () => path.join(path.resolve(process.env.DATA_DIR || "data"), "number-pool.json");
 export const PHONE_RE = /^\+[1-9]\d{6,14}$/;
@@ -32,6 +41,7 @@ function routing(tenant) {
 
 /** Point a number that already exists in Retell at our agent + inbound webhook. */
 export async function bindNumber(number, tenant) {
+  if (useVapi()) return bindVapiNumber(number, tenant);
   try {
     return await retell("PATCH", `/update-phone-number/${encodeURIComponent(number)}`, routing(tenant));
   } catch (e) {
@@ -42,6 +52,7 @@ export async function bindNumber(number, tenant) {
 
 /** Import a number from DBS's SIP trunk into Retell and bind it. */
 export async function importNumber(number, tenant) {
+  if (useVapi()) return importVapiNumber(number, tenant);
   if (!env.sipTerminationUri) throw new Error("RETELL_SIP_TERMINATION_URI is not set, so numbers can't be imported automatically.");
   return retell("POST", "/import-phone-number", {
     phone_number: number,
